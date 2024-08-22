@@ -1,0 +1,435 @@
+All documents deleted from plays
+All documents deleted from characters
+All documents deleted from acts
+All documents deleted from scenes
+All documents deleted from speeches
+Processing data/merchant_of_venice_moby.xml
+Traceback (most recent call last):
+  File "/Users/jefffogarty/Documents/projects/kn-ts-01/typesense/./readXMLstoreTS.py", line 98, in <module>
+    process_xml_file(file_path)
+  File "/Users/jefffogarty/Documents/projects/kn-ts-01/typesense/./readXMLstoreTS.py", line 43, in process_xml_file
+    client.collections['plays'].documents.create({
+  File "/Users/jefffogarty/.pyenv/versions/knts/lib/python3.12/site-packages/typesense/documents.py", line 35, in create
+    return self.api_call.post(self._endpoint_path(), document, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jefffogarty/.pyenv/versions/knts/lib/python3.12/site-packages/typesense/api_call.py", line 153, in post
+    return self.make_request(session.post, endpoint, as_json,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jefffogarty/.pyenv/versions/knts/lib/python3.12/site-packages/typesense/api_call.py", line 116, in make_request
+    raise ApiCall.get_exception(r.status_code)(r.status_code, error_message)
+typesense.exceptions.ObjectAlreadyExists: [Errno 409] A document with id merchant_of_venice_moby already exists.
+
+http GET "http://typesense.documentresearch.dev:8080/collections" \                                                                                                   ─╯
+     "X-TYPESENSE-API-KEY:TooManySecrets"
+HTTP/1.1 200 OK
+accept-ranges: none
+access-control-allow-origin: *
+content-encoding: gzip
+content-type: application/json; charset=utf-8
+date: Thu, 22 Aug 2024 18:59:28 GMT
+server: istio-envoy
+transfer-encoding: chunked
+vary: accept-encoding
+x-envoy-upstream-service-time: 3
+
+[
+    {
+        "created_at": 1724351738,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "scene_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "speaker",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "content",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "speeches",
+        "num_documents": 4839,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724351738,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "act_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "scene_number",
+                "optional": false,
+                "sort": true,
+                "type": "int32"
+            }
+        ],
+        "name": "scenes",
+        "num_documents": 146,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724351738,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "play_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "act_number",
+                "optional": false,
+                "sort": true,
+                "type": "int32"
+            }
+        ],
+        "name": "acts",
+        "num_documents": 29,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724351738,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "play_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "name",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "characters",
+        "num_documents": 173,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724351738,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "fm",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "scndescr",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "playsubt",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "plays",
+        "num_documents": 6,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724339152,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "play_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "subtitle",
+                "optional": true,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "content",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "inductions",
+        "num_documents": 0,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724339152,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "play_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "act_id",
+                "optional": true,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "subtitle",
+                "optional": true,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "content",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "epilogues",
+        "num_documents": 0,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724339152,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "play_id",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "act_id",
+                "optional": true,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "subtitle",
+                "optional": true,
+                "sort": false,
+                "type": "string"
+            },
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "content",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "prologues",
+        "num_documents": 0,
+        "symbols_to_index": [],
+        "token_separators": []
+    },
+    {
+        "created_at": 1724281594,
+        "default_sorting_field": "",
+        "enable_nested_fields": false,
+        "fields": [
+            {
+                "facet": false,
+                "index": true,
+                "infix": false,
+                "locale": "",
+                "name": "title",
+                "optional": false,
+                "sort": false,
+                "type": "string"
+            }
+        ],
+        "name": "shakespeare_works",
+        "num_documents": 43,
+        "symbols_to_index": [],
+        "token_separators": []
+    }
+]
