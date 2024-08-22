@@ -16,19 +16,27 @@ client_config = {
 # Initialize Typesense client
 client = Client(client_config)
 
-# Function to delete all documents in a collection
-def delete_all_documents(collection_name):
+# Function to delete a collection if it exists
+def delete_collection(collection_name):
     try:
-        client.collections[collection_name].documents.delete({'filter_by': 'id:>0'})
-        print(f"All documents deleted from {collection_name}")
+        if collection_name in client.collections:
+            client.collections[collection_name].delete()
+            print(f"Collection {collection_name} deleted")
+        else:
+            print(f"Collection {collection_name} does not exist")
     except Exception as e:
-        print(f"Error deleting documents from {collection_name}: {str(e)}")
+        print(f"Error deleting collection {collection_name}: {str(e)}")
 
 # Function to reset all collections
 def reset_collections():
-    collections = ['plays', 'characters', 'acts', 'scenes', 'speeches']
+    collections = ['speeches', 'scenes', 'acts', 'characters', 'plays']
     for collection in collections:
-        delete_all_documents(collection)
+        delete_collection(collection)
+    
+    # Recreate collections
+    from createSPcollections import create_collection
+    for collection in reversed(collections):
+        create_collection(collection)
 
 # Function to process XML and store in Typesense
 def process_xml_file(file_path):
