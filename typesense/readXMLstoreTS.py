@@ -1,6 +1,7 @@
 import os
 import xml.etree.ElementTree as ET
 from typesense import Client
+import time
 
 # Typesense client configuration
 client_config = {
@@ -10,7 +11,9 @@ client_config = {
         'protocol': 'http'
     }],
     'api_key': os.getenv('TYPESENSE_API_KEY'),
-    'connection_timeout_seconds': 5
+    'connection_timeout_seconds': 10,
+    'num_retries': 3,
+    'retry_interval_seconds': 1
 }
 
 # Initialize Typesense client
@@ -18,28 +21,45 @@ client = Client(client_config)
 
 # Function to delete a collection if it exists
 def delete_collection(collection_name):
-    try:
-        if collection_name in client.collections:
-            print(f"Deleting Collection {collection_name}")
-            client.collections[collection_name].delete()
-            print(f"Collection {collection_name} deleted")
-        else:
-            print(f"Collection {collection_name} does not exist")
-    except Exception as e:
-        print(f"Error deleting collection {collection_name}: {str(e)}")
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            print(f"Attempting to delete collection {collection_name} (Attempt {attempt + 1})")
+            if collection_name in client.collections:
+                print(f"Deleting Collection {collection_name}")
+                client.collections[collection_name].delete()
+                print(f"Collection {collection_name} deleted successfully")
+                return
+            else:
+                print(f"Collection {collection_name} does not exist")
+                return
+        except Exception as e:
+            print(f"Error deleting collection {collection_name} (Attempt {attempt + 1}): {str(e)}")
+            if attempt < max_retries - 1:
+                print(f"Retrying in 5 seconds...")
+                time.sleep(5)
+            else:
+                print(f"Failed to delete collection {collection_name} after {max_retries} attempts")
 
 # Function to reset all collections
 def reset_collections():
-    print("resetting collections")
+    print("Resetting collections")
     collections = ['speeches', 'scenes', 'acts', 'characters', 'plays']
     for collection in collections:
-        print(f"calling delete collection {collection}")
+        print(f"Attempting to delete collection {collection}")
         delete_collection(collection)
+        print(f"Finished attempt to delete collection {collection}")
+
+    print("All collections deletion attempts completed")
 
     # Recreate collections
     from createSPcollections import create_collection
     for collection in reversed(collections):
+        print(f"Creating collection {collection}")
         create_collection(collection)
+        print(f"Collection {collection} created")
+
+    print("All collections reset completed")
 
 # Function to process XML and store in Typesense
 def process_xml_file(file_path):
