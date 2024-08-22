@@ -32,48 +32,6 @@ def save_processed_file(filename):
     with open(PROCESSED_FILES_PATH, 'a') as f:
         f.write(f"{filename}\n")
 
-# Function to delete a collection if it exists
-def delete_collection(collection_name):
-    max_retries = 3
-    for attempt in range(max_retries):
-        try:
-            print(f"Attempting to delete collection {collection_name} (Attempt {attempt + 1})")
-            if collection_name in client.collections:
-                print(f"Deleting Collection {collection_name}")
-                client.collections[collection_name].delete()
-                print(f"Collection {collection_name} deleted successfully")
-                return
-            else:
-                print(f"Collection {collection_name} does not exist")
-                return
-        except Exception as e:
-            print(f"Error deleting collection {collection_name} (Attempt {attempt + 1}): {str(e)}")
-            if attempt < max_retries - 1:
-                print(f"Retrying in 5 seconds...")
-                time.sleep(5)
-            else:
-                print(f"Failed to delete collection {collection_name} after {max_retries} attempts")
-
-# Function to reset all collections
-def reset_collections():
-    print("Resetting collections")
-    collections = ['speeches', 'scenes', 'acts', 'characters', 'plays']
-    for collection in collections:
-        print(f"Attempting to delete collection {collection}")
-        delete_collection(collection)
-        print(f"Finished attempt to delete collection {collection}")
-
-    print("All collections deletion attempts completed")
-
-    # Recreate collections
-    from createSPcollections import create_collection
-    for collection in reversed(collections):
-        print(f"Creating collection {collection}")
-        create_collection(collection)
-        print(f"Collection {collection} created")
-
-    print("All collections reset completed")
-
 # Function to process XML and store in Typesense
 def process_xml_file(file_path):
     tree = ET.parse(file_path)
@@ -82,6 +40,14 @@ def process_xml_file(file_path):
     # Extract play information
     play_title = root.find('TITLE').text
     play_id = os.path.splitext(os.path.basename(file_path))[0]
+
+    stats = {
+        'plays': {'added': 0, 'skipped': 0},
+        'characters': {'added': 0, 'skipped': 0},
+        'acts': {'added': 0, 'skipped': 0},
+        'scenes': {'added': 0, 'skipped': 0},
+        'speeches': {'added': 0, 'skipped': 0}
+    }
 
     # Store play information
     try:
@@ -92,26 +58,61 @@ def process_xml_file(file_path):
             'scndescr': root.find('SCNDESCR').text,
             'playsubt': root.find('PLAYSUBT').text
         })
+        stats['plays']['added'] += 1
     except Exception as e:
         if 'already exists' in str(e):
             print(f"Play document for {play_id} already exists. Skipping play creation.")
+            stats['plays']['skipped'] += 1
         else:
             print(f"Error creating play document: {str(e)}")
-            return False  # Indicate processing failure
+            return False, stats
+
+    def get_character_context(persona):
+        parent = persona.getparent()
+        if parent.tag == 'PGROUP':
+            grpdescr = parent.find('GRPDESCR')
+            group_desc = grpdescr.text if grpdescr is not None else None
+            return group_desc, None
+        elif parent.tag == 'PERSONAE':
+            # Check if the next element is the character's description
+            next_elem = persona.getnext()
+            if next_elem is not None and next_elem.tag == 'GRPDESCR':
+                return None, next_elem.text
+        return None, None
 
     # Process characters
-    for persona in root.find('PERSONAE').findall('.//PERSONA'):
+    for persona in root.findall('.//PERSONA'):
+        character_name = persona.text.strip()
+        group_desc, individual_desc = get_character_context(persona)
+
+        character_id = f"{play_id}_{character_name.replace(' ', '_').lower()}"
+
         try:
-            client.collections['characters'].documents.create({
-                'id': f"{play_id}_{persona.text.strip()}",
+            character_data = {
+                'id': character_id,
                 'play_id': play_id,
-                'name': persona.text.strip()
-            })
+                'name': character_name,
+            }
+            if group_desc:
+                character_data['group_description'] = group_desc
+            if individual_desc:
+                character_data['individual_description'] = individual_desc
+
+            client.collections['characters'].documents.create(character_data)
+            stats['characters']['added'] += 1
+            print(f"Added character: {character_name} in {play_id}")
+            if group_desc:
+                print(f"  Group description: {group_desc}")
+            if individual_desc:
+                print(f"  Individual description: {individual_desc}")
         except Exception as e:
             if 'already exists' in str(e):
-                print(f"Character document for {play_id}_{persona.text.strip()} already exists. Skipping.")
+                print(f"Character {character_name} already exists in Typesense. Updating...")
+                client.collections['characters'].documents[character_id].update(character_data)
+                stats['characters']['updated'] += 1
             else:
-                print(f"Error creating character document: {str(e)}")
+                print(f"Error creating/updating character document: {str(e)}")
+                stats['characters']['skipped'] += 1
 
     # Process acts, scenes, speeches
     for act_num, act in enumerate(root.findall('ACT'), 1):
@@ -123,9 +124,11 @@ def process_xml_file(file_path):
                 'title': act.find('TITLE').text,
                 'act_number': act_num
             })
+            stats['acts']['added'] += 1
         except Exception as e:
             if 'already exists' in str(e):
                 print(f"Act document for {act_id} already exists. Skipping.")
+                stats['acts']['skipped'] += 1
             else:
                 print(f"Error creating act document: {str(e)}")
                 continue
@@ -139,9 +142,11 @@ def process_xml_file(file_path):
                     'title': scene.find('TITLE').text,
                     'scene_number': scene_num
                 })
+                stats['scenes']['added'] += 1
             except Exception as e:
                 if 'already exists' in str(e):
                     print(f"Scene document for {scene_id} already exists. Skipping.")
+                    stats['scenes']['skipped'] += 1
                 else:
                     print(f"Error creating scene document: {str(e)}")
                     continue
@@ -149,7 +154,7 @@ def process_xml_file(file_path):
             for speech_num, speech in enumerate(scene.findall('SPEECH'), 1):
                 speaker = speech.find('SPEAKER').text
                 content = ' '.join([line.text for line in speech.findall('LINE') if line.text])
-                speech_id = f"{scene_id}_{speaker}_{speech_num}_{hash(content) % 1000000}"  # Truncate hash to 6 digits
+                speech_id = f"{scene_id}_{speaker.replace(' ', '_').lower()}_{speech_num}"
                 try:
                     client.collections['speeches'].documents.create({
                         'id': speech_id,
@@ -157,16 +162,15 @@ def process_xml_file(file_path):
                         'speaker': speaker,
                         'content': content
                     })
+                    stats['speeches']['added'] += 1
                 except Exception as e:
                     if 'already exists' in str(e):
                         print(f"Speech document for {speech_id} already exists. Skipping.")
+                        stats['speeches']['skipped'] += 1
                     else:
                         print(f"Error creating speech document: {str(e)}")
 
-    return True  # Indicate successful processing
-
-# Reset collections before processing
-# reset_collections()
+    return True, stats
 
 # Load the list of processed files
 processed_files = load_processed_files()
@@ -178,9 +182,18 @@ for filename in os.listdir(data_dir):
         file_path = os.path.join(data_dir, filename)
         print(f"Processing {file_path}")
         try:
-            if process_xml_file(file_path):
-                save_processed_file(filename)
-                print(f"Successfully processed and saved {filename}")
+            success, stats = process_xml_file(file_path)
+            if success:
+                total_added = sum(stat['added'] for stat in stats.values())
+                total_skipped = sum(stat['skipped'] for stat in stats.values())
+                if total_added > 0:
+                    save_processed_file(filename)
+                    print(f"Successfully processed {filename}")
+                    print(f"Added: {total_added} documents, Skipped: {total_skipped} documents")
+                    for category, counts in stats.items():
+                        print(f"  {category}: Added {counts['added']}, Skipped {counts['skipped']}")
+                else:
+                    print(f"No new documents added for {filename}. File not marked as processed.")
             else:
                 print(f"Failed to process {filename}")
         except Exception as e:

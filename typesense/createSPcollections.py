@@ -48,7 +48,8 @@ collections = [
             {'name': 'id', 'type': 'string'},
             {'name': 'play_id', 'type': 'string'},
             {'name': 'name', 'type': 'string'},
-            {'name': 'group_description', 'type': 'string', 'optional': True}
+            {'name': 'group_description', 'type': 'string', 'optional': True},
+            {'name': 'individual_description', 'type': 'string', 'optional': True}
         ]
     },
     {
@@ -58,7 +59,9 @@ collections = [
             {'name': 'play_id', 'type': 'string'},
             {'name': 'title', 'type': 'string'},
             {'name': 'subtitle', 'type': 'string', 'optional': True},
-            {'name': 'act_number', 'type': 'int32'}
+            {'name': 'act_number', 'type': 'int32'},
+            {'name': 'prologue', 'type': 'string', 'optional': True},
+            {'name': 'epilogue', 'type': 'string', 'optional': True}
         ]
     },
     {
@@ -77,7 +80,9 @@ collections = [
             {'name': 'id', 'type': 'string'},
             {'name': 'scene_id', 'type': 'string'},
             {'name': 'speaker', 'type': 'string'},
-            {'name': 'content', 'type': 'string'}
+            {'name': 'content', 'type': 'string'},
+            {'name': 'stage_directions', 'type': 'string[]', 'optional': True},
+            {'name': 'subheads', 'type': 'string[]', 'optional': True}
         ]
     },
     {
