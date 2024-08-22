@@ -16,6 +16,20 @@ client_config = {
 # Initialize Typesense client
 client = Client(client_config)
 
+# Function to delete all documents in a collection
+def delete_all_documents(collection_name):
+    try:
+        client.collections[collection_name].documents.delete({'filter_by': 'id:>0'})
+        print(f"All documents deleted from {collection_name}")
+    except Exception as e:
+        print(f"Error deleting documents from {collection_name}: {str(e)}")
+
+# Function to reset all collections
+def reset_collections():
+    collections = ['plays', 'characters', 'acts', 'scenes', 'speeches']
+    for collection in collections:
+        delete_all_documents(collection)
+
 # Function to process XML and store in Typesense
 def process_xml_file(file_path):
     tree = ET.parse(file_path)
@@ -71,6 +85,9 @@ def process_xml_file(file_path):
                     'speaker': speaker,
                     'content': content
                 })
+
+# Reset collections before processing
+reset_collections()
 
 # Find and process all XML files in the 'data' subdirectory
 data_dir = 'data'
