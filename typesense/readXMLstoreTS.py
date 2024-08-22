@@ -32,6 +32,21 @@ def save_processed_file(filename):
     with open(PROCESSED_FILES_PATH, 'a') as f:
         f.write(f"{filename}\n")
 
+def get_character_context(persona, root):
+    for pgroup in root.findall('.//PGROUP'):
+        if persona in pgroup.findall('PERSONA'):
+            grpdescr = pgroup.find('GRPDESCR')
+            return grpdescr.text if grpdescr is not None else None, None
+
+    # Check if the next element after PERSONA is GRPDESCR
+    personae = root.find('PERSONAE')
+    if personae is not None:
+        persona_index = list(personae).index(persona)
+        if persona_index + 1 < len(personae) and personae[persona_index + 1].tag == 'GRPDESCR':
+            return None, personae[persona_index + 1].text
+
+    return None, None
+
 # Function to process XML and store in Typesense
 def process_xml_file(file_path):
     tree = ET.parse(file_path)
@@ -43,7 +58,7 @@ def process_xml_file(file_path):
 
     stats = {
         'plays': {'added': 0, 'skipped': 0},
-        'characters': {'added': 0, 'skipped': 0},
+        'characters': {'added': 0, 'skipped': 0, 'updated': 0},
         'acts': {'added': 0, 'skipped': 0},
         'scenes': {'added': 0, 'skipped': 0},
         'speeches': {'added': 0, 'skipped': 0}
@@ -67,23 +82,10 @@ def process_xml_file(file_path):
             print(f"Error creating play document: {str(e)}")
             return False, stats
 
-    def get_character_context(persona):
-        parent = persona.getparent()
-        if parent.tag == 'PGROUP':
-            grpdescr = parent.find('GRPDESCR')
-            group_desc = grpdescr.text if grpdescr is not None else None
-            return group_desc, None
-        elif parent.tag == 'PERSONAE':
-            # Check if the next element is the character's description
-            next_elem = persona.getnext()
-            if next_elem is not None and next_elem.tag == 'GRPDESCR':
-                return None, next_elem.text
-        return None, None
-
     # Process characters
     for persona in root.findall('.//PERSONA'):
         character_name = persona.text.strip()
-        group_desc, individual_desc = get_character_context(persona)
+        group_desc, individual_desc = get_character_context(persona, root)
 
         character_id = f"{play_id}_{character_name.replace(' ', '_').lower()}"
 
@@ -172,31 +174,37 @@ def process_xml_file(file_path):
 
     return True, stats
 
-# Load the list of processed files
-processed_files = load_processed_files()
+# Main execution
+if __name__ == "__main__":
+    # Load the list of processed files
+    processed_files = load_processed_files()
 
-# Find and process all XML files in the 'data' subdirectory
-data_dir = 'data'
-for filename in os.listdir(data_dir):
-    if filename.endswith('.xml') and filename not in processed_files:
-        file_path = os.path.join(data_dir, filename)
-        print(f"Processing {file_path}")
-        try:
-            success, stats = process_xml_file(file_path)
-            if success:
-                total_added = sum(stat['added'] for stat in stats.values())
-                total_skipped = sum(stat['skipped'] for stat in stats.values())
-                if total_added > 0:
-                    save_processed_file(filename)
-                    print(f"Successfully processed {filename}")
-                    print(f"Added: {total_added} documents, Skipped: {total_skipped} documents")
-                    for category, counts in stats.items():
-                        print(f"  {category}: Added {counts['added']}, Skipped {counts['skipped']}")
+    # Find and process all XML files in the 'data' subdirectory
+    data_dir = 'data'
+    for filename in os.listdir(data_dir):
+        if filename.endswith('.xml') and filename not in processed_files:
+            file_path = os.path.join(data_dir, filename)
+            print(f"Processing {file_path}")
+            try:
+                success, stats = process_xml_file(file_path)
+                if success:
+                    total_added = sum(stat['added'] for stat in stats.values())
+                    total_skipped = sum(stat['skipped'] for stat in stats.values())
+                    total_updated = stats['characters']['updated']  # Only characters can be updated
+                    if total_added > 0 or total_updated > 0:
+                        save_processed_file(filename)
+                        print(f"Successfully processed {filename}")
+                        print(f"Added: {total_added} documents, Updated: {total_updated} documents, Skipped: {total_skipped} documents")
+                        for category, counts in stats.items():
+                            print(f"  {category}: Added {counts['added']}, Skipped {counts['skipped']}", end="")
+                            if 'updated' in counts:
+                                print(f", Updated {counts['updated']}", end="")
+                            print()
+                    else:
+                        print(f"No new documents added or updated for {filename}. File not marked as processed.")
                 else:
-                    print(f"No new documents added for {filename}. File not marked as processed.")
-            else:
-                print(f"Failed to process {filename}")
-        except Exception as e:
-            print(f"Error processing {filename}: {str(e)}")
+                    print(f"Failed to process {filename}")
+            except Exception as e:
+                print(f"Error processing {filename}: {str(e)}")
 
-print("All new XML files processed and stored in Typesense.")
+    print("All new XML files processed and stored in Typesense.")
