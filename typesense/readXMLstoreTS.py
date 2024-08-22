@@ -30,8 +30,10 @@ def delete_collection(collection_name):
 
 # Function to reset all collections
 def reset_collections():
+    print("resetting collections")
     collections = ['speeches', 'scenes', 'acts', 'characters', 'plays']
     for collection in collections:
+        print(f"calling delete collection {collection}")
         delete_collection(collection)
 
     # Recreate collections
