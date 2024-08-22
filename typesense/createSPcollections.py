@@ -16,9 +16,7 @@ client_config = {
 client = Client(client_config)
 
 # Function to create a collection
-def create_collection(name, fields=None):
-    if fields is None:
-        fields = collections_schema.get(name, [])
+def create_collection(name, fields):
     schema = {
         'name': name,
         'fields': fields
@@ -27,53 +25,12 @@ def create_collection(name, fields=None):
         client.collections.create(schema)
         print(f"Collection '{name}' created successfully.")
     except Exception as e:
-        print(f"Error creating collection '{name}': {str(e)}")
+        if 'already exists' in str(e):
+            print(f"Collection '{name}' already exists. Skipping creation.")
+        else:
+            print(f"Error creating collection '{name}': {str(e)}")
 
 # Define collection schemas
-collections_schema = {
-    'plays': [
-        {'name': 'id', 'type': 'string'},
-        {'name': 'title', 'type': 'string'},
-        {'name': 'fm', 'type': 'string'},
-        {'name': 'scndescr', 'type': 'string'},
-        {'name': 'playsubt', 'type': 'string'}
-    ],
-    'characters': [
-        {'name': 'id', 'type': 'string'},
-        {'name': 'play_id', 'type': 'string'},
-        {'name': 'name', 'type': 'string'},
-        {'name': 'group_description', 'type': 'string', 'optional': True}
-    ],
-    'acts': [
-        {'name': 'id', 'type': 'string'},
-        {'name': 'play_id', 'type': 'string'},
-        {'name': 'title', 'type': 'string'},
-        {'name': 'subtitle', 'type': 'string', 'optional': True},
-        {'name': 'act_number', 'type': 'int32'}
-    ],
-    'scenes': [
-        {'name': 'id', 'type': 'string'},
-        {'name': 'act_id', 'type': 'string'},
-        {'name': 'title', 'type': 'string'},
-        {'name': 'subtitle', 'type': 'string', 'optional': True},
-        {'name': 'scene_number', 'type': 'int32'}
-    ],
-    'speeches': [
-        {'name': 'id', 'type': 'string'},
-        {'name': 'scene_id', 'type': 'string'},
-        {'name': 'speaker', 'type': 'string'},
-        {'name': 'content', 'type': 'string'}
-    ]
-}
-
-if __name__ == "__main__":
-    # Create all collections
-    for collection, fields in collections_schema.items():
-        create_collection(collection, fields)
-
-    print("Collection creation process completed.")
-
-# Define and create collections
 collections = [
     {
         'name': 'plays',
@@ -157,8 +114,9 @@ collections = [
     }
 ]
 
-# Create all collections
-for collection in collections:
-    create_collection(collection['name'], collection['fields'])
+if __name__ == "__main__":
+    # Create all collections
+    for collection in collections:
+        create_collection(collection['name'], collection['fields'])
 
-print("Collection creation process completed.")
+    print("Collection creation process completed.")

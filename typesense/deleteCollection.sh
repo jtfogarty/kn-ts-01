@@ -1,0 +1,8 @@
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/speeches" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/scenes" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/acts" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/characters" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/plays" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/inductions" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/epilogues" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"
+curl -X DELETE "http://typesense.documentresearch.dev:8080/collections/prologues" -H "X-TYPESENSE-API-KEY: $TYPESENSE_API_KEY"

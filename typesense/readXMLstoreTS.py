@@ -19,6 +19,19 @@ client_config = {
 # Initialize Typesense client
 client = Client(client_config)
 
+# Path for the processed files list
+PROCESSED_FILES_PATH = 'processed_files.txt'
+
+def load_processed_files():
+    if os.path.exists(PROCESSED_FILES_PATH):
+        with open(PROCESSED_FILES_PATH, 'r') as f:
+            return set(f.read().splitlines())
+    return set()
+
+def save_processed_file(filename):
+    with open(PROCESSED_FILES_PATH, 'a') as f:
+        f.write(f"{filename}\n")
+
 # Function to delete a collection if it exists
 def delete_collection(collection_name):
     max_retries = 3
@@ -71,61 +84,106 @@ def process_xml_file(file_path):
     play_id = os.path.splitext(os.path.basename(file_path))[0]
 
     # Store play information
-    client.collections['plays'].documents.create({
-        'id': play_id,
-        'title': play_title,
-        'fm': ' '.join([p.text for p in root.find('FM').findall('P')]),
-        'scndescr': root.find('SCNDESCR').text,
-        'playsubt': root.find('PLAYSUBT').text
-    })
+    try:
+        client.collections['plays'].documents.create({
+            'id': play_id,
+            'title': play_title,
+            'fm': ' '.join([p.text for p in root.find('FM').findall('P')]),
+            'scndescr': root.find('SCNDESCR').text,
+            'playsubt': root.find('PLAYSUBT').text
+        })
+    except Exception as e:
+        if 'already exists' in str(e):
+            print(f"Play document for {play_id} already exists. Skipping play creation.")
+        else:
+            print(f"Error creating play document: {str(e)}")
+            return False  # Indicate processing failure
 
     # Process characters
     for persona in root.find('PERSONAE').findall('.//PERSONA'):
-        client.collections['characters'].documents.create({
-            'id': f"{play_id}_{persona.text.strip()}",
-            'play_id': play_id,
-            'name': persona.text.strip()
-        })
+        try:
+            client.collections['characters'].documents.create({
+                'id': f"{play_id}_{persona.text.strip()}",
+                'play_id': play_id,
+                'name': persona.text.strip()
+            })
+        except Exception as e:
+            if 'already exists' in str(e):
+                print(f"Character document for {play_id}_{persona.text.strip()} already exists. Skipping.")
+            else:
+                print(f"Error creating character document: {str(e)}")
 
     # Process acts, scenes, speeches
     for act_num, act in enumerate(root.findall('ACT'), 1):
         act_id = f"{play_id}_act_{act_num}"
-        client.collections['acts'].documents.create({
-            'id': act_id,
-            'play_id': play_id,
-            'title': act.find('TITLE').text,
-            'act_number': act_num
-        })
+        try:
+            client.collections['acts'].documents.create({
+                'id': act_id,
+                'play_id': play_id,
+                'title': act.find('TITLE').text,
+                'act_number': act_num
+            })
+        except Exception as e:
+            if 'already exists' in str(e):
+                print(f"Act document for {act_id} already exists. Skipping.")
+            else:
+                print(f"Error creating act document: {str(e)}")
+                continue
 
         for scene_num, scene in enumerate(act.findall('SCENE'), 1):
             scene_id = f"{act_id}_scene_{scene_num}"
-            client.collections['scenes'].documents.create({
-                'id': scene_id,
-                'act_id': act_id,
-                'title': scene.find('TITLE').text,
-                'scene_number': scene_num
-            })
+            try:
+                client.collections['scenes'].documents.create({
+                    'id': scene_id,
+                    'act_id': act_id,
+                    'title': scene.find('TITLE').text,
+                    'scene_number': scene_num
+                })
+            except Exception as e:
+                if 'already exists' in str(e):
+                    print(f"Scene document for {scene_id} already exists. Skipping.")
+                else:
+                    print(f"Error creating scene document: {str(e)}")
+                    continue
 
             for speech_num, speech in enumerate(scene.findall('SPEECH'), 1):
                 speaker = speech.find('SPEAKER').text
                 content = ' '.join([line.text for line in speech.findall('LINE') if line.text])
                 speech_id = f"{scene_id}_{speaker}_{speech_num}_{hash(content) % 1000000}"  # Truncate hash to 6 digits
-                client.collections['speeches'].documents.create({
-                    'id': speech_id,
-                    'scene_id': scene_id,
-                    'speaker': speaker,
-                    'content': content
-                })
+                try:
+                    client.collections['speeches'].documents.create({
+                        'id': speech_id,
+                        'scene_id': scene_id,
+                        'speaker': speaker,
+                        'content': content
+                    })
+                except Exception as e:
+                    if 'already exists' in str(e):
+                        print(f"Speech document for {speech_id} already exists. Skipping.")
+                    else:
+                        print(f"Error creating speech document: {str(e)}")
+
+    return True  # Indicate successful processing
 
 # Reset collections before processing
-reset_collections()
+# reset_collections()
+
+# Load the list of processed files
+processed_files = load_processed_files()
 
 # Find and process all XML files in the 'data' subdirectory
 data_dir = 'data'
 for filename in os.listdir(data_dir):
-    if filename.endswith('.xml'):
+    if filename.endswith('.xml') and filename not in processed_files:
         file_path = os.path.join(data_dir, filename)
         print(f"Processing {file_path}")
-        process_xml_file(file_path)
+        try:
+            if process_xml_file(file_path):
+                save_processed_file(filename)
+                print(f"Successfully processed and saved {filename}")
+            else:
+                print(f"Failed to process {filename}")
+        except Exception as e:
+            print(f"Error processing {filename}: {str(e)}")
 
-print("All XML files processed and stored in Typesense.")
+print("All new XML files processed and stored in Typesense.")
