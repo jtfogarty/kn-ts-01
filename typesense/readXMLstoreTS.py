@@ -61,11 +61,12 @@ def process_xml_file(file_path):
                 'scene_number': scene_num
             })
 
-            for speech in scene.findall('SPEECH'):
+            for speech_num, speech in enumerate(scene.findall('SPEECH'), 1):
                 speaker = speech.find('SPEAKER').text
                 content = ' '.join([line.text for line in speech.findall('LINE') if line.text])
+                speech_id = f"{scene_id}_{speaker}_{speech_num}_{hash(content) % 1000000}"  # Truncate hash to 6 digits
                 client.collections['speeches'].documents.create({
-                    'id': f"{scene_id}_{speaker}_{hash(content)}",
+                    'id': speech_id,
                     'scene_id': scene_id,
                     'speaker': speaker,
                     'content': content
