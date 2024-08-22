@@ -20,6 +20,7 @@ client = Client(client_config)
 def delete_collection(collection_name):
     try:
         if collection_name in client.collections:
+            print(f"Deleting Collection {collection_name}")
             client.collections[collection_name].delete()
             print(f"Collection {collection_name} deleted")
         else:
@@ -32,7 +33,7 @@ def reset_collections():
     collections = ['speeches', 'scenes', 'acts', 'characters', 'plays']
     for collection in collections:
         delete_collection(collection)
-    
+
     # Recreate collections
     from createSPcollections import create_collection
     for collection in reversed(collections):
