@@ -1,0 +1,8 @@
+
+The below works
+ 
+curl -s -H "X-TYPESENSE-API-KEY: ${TYPESENSE_API_KEY}" \ 
+"http://typesense.documentresearch.dev:8080/collections/characters/documents/search?q=*&query_by=name&filter_by=play_id:two_gentlemen_of_verona_moby" |jq
+  
+curl -s -H "X-TYPESENSE-API-KEY: ${TYPESENSE_API_KEY}" \
+"http://typesense.documentresearch.dev:8080/collections/characters/documents/search?q=*&query_by=name&filter_by=play_id:merchant_of_venice_moby" |jq   

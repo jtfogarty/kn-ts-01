@@ -60,6 +60,7 @@ collections = [
             {'name': 'title', 'type': 'string'},
             {'name': 'subtitle', 'type': 'string', 'optional': True},
             {'name': 'act_number', 'type': 'int32'},
+            {'name': 'full_text', 'type': 'string'},
             {'name': 'prologue', 'type': 'string', 'optional': True},
             {'name': 'epilogue', 'type': 'string', 'optional': True}
         ]
@@ -71,7 +72,8 @@ collections = [
             {'name': 'act_id', 'type': 'string'},
             {'name': 'title', 'type': 'string'},
             {'name': 'subtitle', 'type': 'string', 'optional': True},
-            {'name': 'scene_number', 'type': 'int32'}
+            {'name': 'scene_number', 'type': 'int32'},
+            {'name': 'full_text', 'type': 'string'}
         ]
     },
     {

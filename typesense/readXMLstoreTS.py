@@ -102,11 +102,11 @@ def process_xml_file(file_path):
 
             client.collections['characters'].documents.create(character_data)
             stats['characters']['added'] += 1
-            print(f"Added character: {character_name} in {play_id}")
-            if group_desc:
-                print(f"  Group description: {group_desc}")
-            if individual_desc:
-                print(f"  Individual description: {individual_desc}")
+            # print(f"Added character: {character_name} in {play_id}")
+            # if group_desc:
+            #     print(f"  Group description: {group_desc}")
+            # if individual_desc:
+            #     print(f"  Individual description: {individual_desc}")
         except Exception as e:
             if 'already exists' in str(e):
                 print(f"Character {character_name} already exists in Typesense. Updating...")
@@ -119,12 +119,15 @@ def process_xml_file(file_path):
     # Process acts, scenes, speeches
     for act_num, act in enumerate(root.findall('ACT'), 1):
         act_id = f"{play_id}_act_{act_num}"
+        act_title = act.find('TITLE').text
+        act_full_text = ET.tostring(act, encoding='unicode', method='text')
         try:
             client.collections['acts'].documents.create({
                 'id': act_id,
                 'play_id': play_id,
-                'title': act.find('TITLE').text,
-                'act_number': act_num
+                'title': act_title,
+                'act_number': act_num,
+                'full_text': act_full_text  # Added full text of the act
             })
             stats['acts']['added'] += 1
         except Exception as e:
@@ -137,12 +140,15 @@ def process_xml_file(file_path):
 
         for scene_num, scene in enumerate(act.findall('SCENE'), 1):
             scene_id = f"{act_id}_scene_{scene_num}"
+            scene_title = scene.find('TITLE').text
+            scene_full_text = ET.tostring(scene, encoding='unicode', method='text')
             try:
                 client.collections['scenes'].documents.create({
                     'id': scene_id,
                     'act_id': act_id,
-                    'title': scene.find('TITLE').text,
-                    'scene_number': scene_num
+                    'title': scene_title,
+                    'scene_number': scene_num,
+                    'full_text': scene_full_text
                 })
                 stats['scenes']['added'] += 1
             except Exception as e:
