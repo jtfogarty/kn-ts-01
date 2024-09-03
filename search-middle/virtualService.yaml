@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: search-frontend-virtualservice
+  namespace: ks-ts
+spec:
+  hosts:
+  - "*" # Replace with your domain if you want to restrict access
+  gateways:
+  - search-frontend-gateway
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: search-frontend.default.svc.cluster.local # Replace 'default' with your namespace if different
+        port:
+          number: 8088

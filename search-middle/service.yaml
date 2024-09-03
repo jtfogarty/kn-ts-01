@@ -15,7 +15,7 @@ spec:
         autoscaling.knative.dev/maxScale: "10"
     spec:
       containers:
-        - image: your-docker-registry/search-frontend:v1
+        - image: 007ba7/ts-kn-srch:latest
           ports:
             - containerPort: 80
           resources:

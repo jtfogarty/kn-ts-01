@@ -1,55 +1,28 @@
 # kn-ts-01
 
-## ToDo
+This project is a proof of concept for using Typesense as the backend for a search service. It is built with Knative, htmx, and Typesense.
 
-1. Backend API Development:
-   - Create Knative service for the backend API
-   - Implement serverless functions for handling search requests
-   - Set up error handling and logging
+The components are:
 
-2. Ollama Integration:
-  - Configure the backend to communicate with the existing Ollama service
-  - Implement API endpoints in the backend to interface with Ollama
-  - Ensure proper error handling and timeouts for Ollama requests
-  - Optimize performance and manage concurrent requests to Ollama
+- **search-frontend**: A simple frontend built with htmx.
+- **search-middle**: A simple backend built with Knative.
+- **search-typesense**: The search backend.
 
-3. Typesense Setup:
-   - ~~Deploy Typesense as a stateful set in Kubernetes~~
-   - Create and configure search indexes
-   - Implement API for Typesense operations (indexing, searching)
+## Completed Tasks
 
-4. Backend-Frontend Integration:
-   - Update frontend to make requests to the backend API
-   - Implement proper error handling and loading states in the frontend
+- Setup Knative
+   - running and good to go
+- Setup Typesense
+   - added Shakespear to Typesense
+   - tested pulling data from Typesense
+- setup frontend
+   - created htmx file
+   - created Dockerfile
+   - used kaniko to build and push to registry
 
-5. Istio Configuration:
-   - Set up Istio gateway and virtual services for routing
-   - Configure traffic management between services
-   - Implement security policies (mTLS, authorization)
-
-6. Monitoring and Observability:
-   - Set up logging aggregation (e.g., Fluentd, Elasticsearch, Kibana)
-   - Implement distributed tracing (e.g., Jaeger)
-   - Configure metrics collection and dashboards (e.g., Prometheus, Grafana)
-
-7. Testing:
-   - Develop unit tests for backend functions
-   - Create integration tests for the entire system
-   - Perform load testing to ensure scalability
-
-8. CI/CD Pipeline:
-   - Set up a CI/CD pipeline for automated testing and deployment
-   - Implement canary deployments or blue-green deployments
-
-9. Documentation:
-   - Create API documentation
-   - Write deployment and operation guides
-   - Document system architecture and design decisions
-
-10. Performance Optimization:
-    - Analyze and optimize LLM inference performance
-    - Fine-tune Typesense for faster search results
-    - Optimize Knative autoscaling settings
+## Tasks remaining
+- create Knative Service for the backend API
+- istio integration for this knative service
 
 ## KNative Backend
 
@@ -83,3 +56,13 @@
 5. Consider implementing a caching layer if you expect repeated similar queries to reduce load on the Ollama service.
 
 6. Monitor the performance and resource usage of your Ollama service, and adjust your backend's concurrency and rate limiting as needed to prevent overload.
+
+The below is how to create the configmap when using kaniko to create the image.
+
+### knative configmap
+```bash
+kubectl create configmap ts-kn-mid-configmap \
+       --from-file=Dockerfile=./Dockerfile \
+       --from-file=requirements.txt=./requirements.txt \
+       --from-file=search.py=./search.py
+```

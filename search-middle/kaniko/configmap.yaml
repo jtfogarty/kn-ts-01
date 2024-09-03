@@ -1,0 +1,31 @@
+apiVersion: v1
+data:
+  Dockerfile: |
+    FROM python:3.9-slim
+
+    WORKDIR /app
+
+    COPY requirements.txt .
+    RUN pip install --no-cache-dir -r requirements.txt
+
+    COPY app.py .
+
+    CMD ["python", "app.py"]
+  requirements.txt: |-
+    Flask==2.0.1
+    requests==2.26.0
+  search.py: "from flask import Flask, request, jsonify\nimport requests\n\napp =
+    Flask(__name__)\n\nOLLAMA_URL = \"http://ollama-gpu.ollama.svc.cluster.local:11434/api\"\nTYPESENSE_URL
+    = \"http://typesense.documentresearch.dev:8080\"  # Adjust if necessary\n\n@app.route('/search',
+    methods=['POST'])\ndef search():\n    query = request.json.get('query')\n    \n
+    \   # Search Typesense\n    typesense_response = requests.post(f\"{TYPESENSE_URL}/collections/shakespeare/documents/search\",
+    json={\n        \"q\": query,\n        \"query_by\": \"text\"\n    })\n        \n
+    \   return jsonify({\n        \"typesense_results\": typesense_response.json()\n
+    \   })\n\nif __name__ == '__main__':\n    app.run(host='0.0.0.0', port=8080)\n"
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2024-08-29T20:32:04Z"
+  name: ts-kn-mid-configmap
+  namespace: default
+  resourceVersion: "37354038"
+  uid: f3ce6a6e-ede1-4aa2-a516-542b97bd6747

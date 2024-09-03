@@ -1,0 +1,128 @@
+apiVersion: v1
+items:
+- apiVersion: networking.istio.io/v1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"Gateway","metadata":{"annotations":{},"name":"rancher-gateway","namespace":"cattle-system"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["rancher.docure.ai"],"port":{"name":"https","number":443,"protocol":"HTTPS"},"tls":{"credentialName":"rancher-docure.ai-tls","mode":"SIMPLE"}}]}}
+    creationTimestamp: "2024-08-13T19:10:18Z"
+    generation: 1
+    name: rancher-gateway
+    namespace: cattle-system
+    resourceVersion: "20461251"
+    uid: e992d37c-6e9e-4ff6-a2ce-fb4678bd457b
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - rancher.docure.ai
+      port:
+        name: https
+        number: 443
+        protocol: HTTPS
+      tls:
+        credentialName: rancher-docure.ai-tls
+        mode: SIMPLE
+- apiVersion: networking.istio.io/v1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Gateway","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"net-istio","app.kubernetes.io/name":"knative-serving","app.kubernetes.io/version":"1.15.1","networking.knative.dev/ingress-provider":"istio"},"name":"knative-ingress-gateway","namespace":"knative-serving"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["*"],"port":{"name":"http","number":80,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-08-13T01:31:55Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: net-istio
+      app.kubernetes.io/name: knative-serving
+      app.kubernetes.io/version: 1.15.1
+      networking.knative.dev/ingress-provider: istio
+    name: knative-ingress-gateway
+    namespace: knative-serving
+    resourceVersion: "19686764"
+    uid: 3e517f29-952f-45c3-a314-c1dc50a7c8ce
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - '*'
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+- apiVersion: networking.istio.io/v1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1beta1","kind":"Gateway","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"net-istio","app.kubernetes.io/name":"knative-serving","app.kubernetes.io/version":"1.15.1","networking.knative.dev/ingress-provider":"istio"},"name":"knative-local-gateway","namespace":"knative-serving"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["*"],"port":{"name":"http","number":8081,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-08-13T01:31:55Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: net-istio
+      app.kubernetes.io/name: knative-serving
+      app.kubernetes.io/version: 1.15.1
+      networking.knative.dev/ingress-provider: istio
+    name: knative-local-gateway
+    namespace: knative-serving
+    resourceVersion: "19686767"
+    uid: 45382b93-d5b4-44de-9571-effd89a82da3
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - '*'
+      port:
+        name: http
+        number: 8081
+        protocol: HTTP
+- apiVersion: networking.istio.io/v1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"Gateway","metadata":{"annotations":{},"name":"ollama-gateway","namespace":"ollama"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["ollama.documentresearch.dev"],"port":{"name":"http","number":80,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-08-13T02:42:45Z"
+    generation: 1
+    name: ollama-gateway
+    namespace: ollama
+    resourceVersion: "19738708"
+    uid: 4b4b9e26-25f3-4fdb-9a3f-89b11faebd95
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - ollama.documentresearch.dev
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+- apiVersion: networking.istio.io/v1
+  kind: Gateway
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"networking.istio.io/v1alpha3","kind":"Gateway","metadata":{"annotations":{},"name":"typesense-gateway","namespace":"typesense"},"spec":{"selector":{"istio":"ingressgateway"},"servers":[{"hosts":["typesense.documentresearch.dev"],"port":{"name":"http","number":80,"protocol":"HTTP"}}]}}
+    creationTimestamp: "2024-08-13T17:55:32Z"
+    generation: 1
+    name: typesense-gateway
+    namespace: typesense
+    resourceVersion: "20406621"
+    uid: b59ce8d3-30dc-4621-ac4a-b94967fd4abc
+  spec:
+    selector:
+      istio: ingressgateway
+    servers:
+    - hosts:
+      - typesense.documentresearch.dev
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+kind: List
+metadata:
+  resourceVersion: ""

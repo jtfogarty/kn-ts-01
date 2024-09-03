@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: search-frontend-gateway
+  namespace: ks-ts
+spec:
+  selector:
+    istio: ingressgateway # Use the default Istio ingress gateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "kn-ts-01.documentresearch.dev" # Replace with your domain if you want to restrict access

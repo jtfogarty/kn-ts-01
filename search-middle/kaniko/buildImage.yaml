@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko-build
+  namespace: default
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - "--dockerfile=/etc/config/Dockerfile"  # Path to Dockerfile
+    - "--context=/etc/config"  # Using the local context from mounted volume
+    - "--destination=007ba7/ts-kn-mid:latest"  # Destination image
+    - "--cache=true"  # Enable caching to speed up builds (optional)
+    volumeMounts:
+    - name: ts-kn-mid-configmap
+      mountPath: /etc/config  # Mount the directory containing the Dockerfile
+  restartPolicy: Never
+  volumes:
+  - name: ts-kn-mid-configmap
+    configMap:
+      name: ts-kn-mid-configmap
+  - name: kaniko-secret
+    secret:
+      secretName: my-registry-secret
+      items:
+      - key: .dockerconfigjson
+        path: config.json  # Ensures the Docker config is available at the expected path
+
